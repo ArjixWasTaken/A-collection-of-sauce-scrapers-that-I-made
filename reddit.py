@@ -68,9 +68,9 @@ class Scroller:
 
 
 @click.command()
-@click.option('--repeat', '-r', default=0, required=False)
-@click.option('--subreddit', '-s', default='/r/hentai', required=False)
-@click.option('--download-dir', '-d', 'folder', required=False, default='./reddit')  # noqa
+@click.option('--repeat', '-r', default=0, required=False, type=int)
+@click.option('--subreddit', '-s', default='/r/hentai', required=False, type=str)
+@click.option('--download-dir', '-d', 'folder', required=False, default='./reddit', type=str)  # noqa
 def main(repeat, subreddit, folder):
     scraper = Scroller(subreddit, folder)
     if repeat == 1:
