@@ -60,6 +60,7 @@ class Scraper:
 def main(pages, folder):
     scraper = Scraper(folder)
     for i in range(pages):
+        print('Current page: {}'.format(scraper.current_page))
         all_media = scraper.getMedia()
         results = ThreadPool(15).imap_unordered(
             scraper.downloadImage, all_media)
