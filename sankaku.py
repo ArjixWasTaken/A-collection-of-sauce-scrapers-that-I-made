@@ -9,6 +9,7 @@ class Scraper:
     def __init__(self, folder):
         self.link = 'https://capi-v2.sankakucomplex.com/posts/keyset'
         self.download_dir = folder
+        self.g = 1
         if not os.path.isdir(self.download_dir):
             os.makedirs(self.download_dir)
 
@@ -25,7 +26,10 @@ class Scraper:
 
     def getImages(self):
         JSON = requests.get(self.link, headers=self.headers, params=self.params).json()  # noqa
-        images = [x['file_url'] for x in JSON['data']]
+        # with open(os.path.join(self.download_dir, str(self.g)+'.json'), 'w') as f:
+        #     json.dump(JSON, f, indent=4)
+        # self.g +=1
+        images = filter(lambda x: bool(x), [x['file_url'] for x in JSON['data']])
         self.params['next'] = JSON['meta']['next']
         self.page_num += 1
         return images
