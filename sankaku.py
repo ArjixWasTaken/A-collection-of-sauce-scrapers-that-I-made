@@ -16,7 +16,7 @@ class Scraper:
         self.params = {
             "lang": "en",
             "default_threshold": 1,
-            "limit": 999,
+            "limit": 20,
             "tags": "rating:18"
         }
         self.headers = {
@@ -29,19 +29,29 @@ class Scraper:
         # with open(os.path.join(self.download_dir, str(self.g)+'.json'), 'w') as f:
         #     json.dump(JSON, f, indent=4)
         # self.g +=1
-        images = filter(lambda x: bool(x), [x['file_url'] for x in JSON['data']])
+        images = filter(lambda x: bool(
+            x), [(' - '.join([y['name_en'] for y in (x['tags'] if len(x['tags']) < 3 else x['tags'][:2])]), x['file_url']) for x in JSON['data']])
         self.params['next'] = JSON['meta']['next']
         self.page_num += 1
         return images
 
-    def downloadMedia(self, link):
-        filepath = os.path.join(self.download_dir, link.split('?')[0].split('/')[-1]).replace('\\', '/')  # noqa
+    def downloadMedia(self, image):
+        if not image[1]:
+            return
+        filepath = image[0] + ' -- ' + image[1].split('?')[0].split('/')[-1]
+        illegal = ['<', '>', ':', '"', '/', '\\', '|', '?', '*']
+        for i in illegal:
+            if i in filepath:
+                filepath = filepath.replace(i, '')
+        filepath = os.path.join(self.download_dir, filepath).replace('\\', '/')
+        if filepath[0] == '.':
+            filepath = filepath[1:]
         if not os.path.isfile(filepath):
             if os.path.isfile(filepath + '.temp'):
                 os.remove(filepath + '.temp')
             with open(filepath + '.temp', 'wb') as f:  # noqa
                 print('Downloading: {}'.format(filepath.split('/')[-1]))
-                f.write(requests.get(link, headers=self.headers).content)
+                f.write(requests.get(image[1], headers=self.headers).content)
             os.replace(filepath + '.temp', filepath)
         else:
             print("Skipping download: {}".format(filepath.split('/')[-1]))
